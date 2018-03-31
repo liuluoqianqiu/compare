@@ -1,0 +1,393 @@
+#
+# Default settings for the simulation
+#
+
+## Scenario settings
+#Scenario.name = default_scenario
+Scenario.name = running_scenario
+Scenario.simulateConnections = true
+Scenario.updateInterval = 0.1
+# 43200s == 12h
+Scenario.endTime = 43200
+#Scenario.endTime = 129600
+
+## Interface-specific settings:
+# type : which interface class the interface belongs to
+# For different types, the sub-parameters are interface-specific
+# For SimpleBroadcastInterface, the parameters are:
+# transmitSpeed : transmit speed of the interface (bytes per second) 
+# transmitRange : range of the interface (meters)
+
+# "Bluetooth" interface for all nodes
+btInterface.type = SimpleBroadcastInterface
+# Transmit speed of 2 Mbps = 250kBps
+btInterface.transmitSpeed = 250k
+#btInterface.transmitRange = 10
+btInterface.transmitRange = 10
+
+# High speed, long range, interface for group 4
+highspeedInterface.type = SimpleBroadcastInterface
+highspeedInterface.transmitSpeed = 10M
+highspeedInterface.transmitRange = 1000
+
+# Define 6 different node groups
+Scenario.nrofHostGroups = 17
+
+## Group-specific settings:
+# groupID : Group's identifier. Used as the prefix of host names
+# nrofHosts: number of hosts in the group
+# movementModel: movement model of the hosts (valid class name from movement package)
+# waitTime: minimum and maximum wait times (seconds) after reaching destination
+# speed: minimum and maximum speeds (m/s) when moving on a path
+# bufferSize: size of the message buffer (bytes)
+# router: router used to route messages (valid class name from routing package)
+# activeTimes: Time intervals when the nodes in the group are active (start1, end1, start2, end2, ...)
+# msgTtl : TTL (minutes) of the messages created by this host group, default=infinite
+
+## Group and movement model specific settings
+# pois: Points Of Interest indexes and probabilities (poiIndex1, poiProb1, poiIndex2, poiProb2, ... )
+#       for ShortestPathMapBasedMovement
+# okMaps : which map nodes are OK for the group (map file indexes), default=all 
+#          for all MapBasedMovent models
+# routeFile: route's file path - for MapRouteMovement
+# routeType: route's type - for MapRouteMovement
+
+
+# Common settings for all groups
+#Group.movementModel = ShortestPathMapBasedMovement
+Group.movementModel = StationaryMovement
+Group.nodeLocation = 0,1
+Group.router = EpidemicRouter
+#Group.router = SprayAndWaitRouter
+Group.bufferSize = 500M
+Group.waitTime = 0, 120
+# All nodes have the bluetooth interface
+Group.nrofInterfaces = 1
+Group.interface1 = btInterface
+# Walking speeds
+Group.speed = 0.5, 1.5
+# Message TTL of 300 minutes (5 hours)
+Group.msgTtl = 300
+
+Group.msgTtl = 12
+
+Group.nrofHosts = 0
+
+Group.nrOfOffices = 50
+Group.workDayLength = 7200
+Group.probGoShoppingAfterWork = 0.5
+Group.nrOfMeetingSpots = 20
+
+#Define new application
+VehicleApp.type = VehicleApplication
+
+RsuApp.type = RsuApplication
+
+#Define new application
+#RSUApp.type = RSUApplication
+
+Group1.groupID = r
+#Group1.movementModel = MapRouteMovement 
+Group1.routeFile = data/HelsinkiMedium/rsuLocation.wkt
+Group1.routeType = 2   
+Group1.nrofHosts = 30
+Group1.waitTime = 0, 0
+Group1.speed = 0, 0
+Group1.nrofInterfaces = 2
+Group1.interface1 = btInterface
+Group1.interface2 = highspeedInterface
+Group1.nrofApplications = 1
+Group1.application1 = RsuApp
+
+Group2.groupID = a
+Group2.speed = 7, 10
+Group2.waitTime = 10, 30
+Group2.nrofHosts = 12
+#Group2.movementModel = BusMovement
+Group2.routeFile = data/HelsinkiMedium/A_bus.wkt
+Group2.routeType = 2
+Group2.busControlSystemNr = 1
+Group2.nrofApplications = 1
+Group2.application1 = VehicleApp
+
+Group3.groupID = b
+Group3.waitTime = 0, 0 
+Group3.nrofHosts = 8
+#Group3.movementModel = WorkingDayMovement
+Group3.busControlSystemNr = 1
+Group3.speed = 0.8, 1.4
+Group3.ownCarProb = 0.7
+Group3.shoppingControlSystemNr = 1
+Group3.meetingSpotsFile = data/HelsinkiMedium/A_meetingspots.wkt
+Group3.officeLocationsFile = data/HelsinkiMedium/A_offices.wkt
+Group3.homeLocationsFile = data/HelsinkiMedium/A_homes.wkt
+Group3.nrofApplications = 1
+Group3.application1 = VehicleApp
+
+Group4.groupID = c
+Group4.speed = 7, 10
+Group4.waitTime = 10, 30 
+Group4.nrofHosts = 12
+#Group4.movementModel = BusMovement
+Group4.routeFile = data/HelsinkiMedium/B_bus.wkt
+Group4.routeType = 2
+Group4.busControlSystemNr = 2
+Group4.nrofApplications = 1
+Group4.application1 = VehicleApp
+
+Group5.groupID = d
+Group5.waitTime = 0, 0 
+Group5.nrofHosts = 7
+#Group5.movementModel = WorkingDayMovement
+Group5.busControlSystemNr = 2
+Group5.speed = 0.8, 1.4
+Group5.ownCarProb = 0.7
+Group5.shoppingControlSystemNr = 2
+Group5.meetingSpotsFile = data/HelsinkiMedium/B_meetingspots.wkt
+Group5.officeLocationsFile = data/HelsinkiMedium/B_offices.wkt
+Group5.homeLocationsFile = data/HelsinkiMedium/B_homes.wkt
+Group5.nrofApplications = 1
+Group5.application1 = VehicleApp
+
+Group6.groupID = e
+Group6.speed = 7, 10
+Group6.waitTime = 10, 30
+Group6.nrofHosts = 12
+#Group6.movementModel = BusMovement
+Group6.routeFile = data/HelsinkiMedium/C_bus.wkt
+Group6.routeType = 2
+Group6.busControlSystemNr = 3
+Group6.nrofApplications = 1
+Group6.application1 = VehicleApp
+
+Group7.groupID = f
+Group7.waitTime = 0, 0 
+Group7.nrofHosts = 7
+#Group7.movementModel = WorkingDayMovement
+Group7.busControlSystemNr = 3
+Group7.speed = 0.8, 1.4
+Group7.ownCarProb = 0.7
+Group7.shoppingControlSystemNr = 3
+Group7.meetingSpotsFile = data/HelsinkiMedium/C_meetingspots.wkt
+Group7.officeLocationsFile = data/HelsinkiMedium/C_offices.wkt
+Group7.homeLocationsFile = data/HelsinkiMedium/C_homes.wkt
+Group7.nrofApplications = 1
+Group7.application1 = VehicleApp
+
+Group8.groupID = g
+Group8.speed = 7, 10
+Group8.waitTime = 10, 30
+Group8.nrofHosts = 12
+#Group8.movementModel = BusMovement
+Group8.routeFile = data/HelsinkiMedium/D_bus.wkt
+Group8.routeType = 2
+Group8.busControlSystemNr = 4
+Group8.nrofApplications = 1
+Group8.application1 = VehicleApp
+
+Group9.groupID = h
+Group9.waitTime = 0, 0 
+Group9.nrofHosts = 7
+#Group9.movementModel = WorkingDayMovement
+Group9.busControlSystemNr = 4
+Group9.speed = 0.8, 1.4
+Group9.ownCarProb = 0.7
+Group9.shoppingControlSystemNr = 4
+Group9.meetingSpotsFile = data/HelsinkiMedium/D_meetingspots.wkt
+Group9.officeLocationsFile = data/HelsinkiMedium/D_offices.wkt
+Group9.homeLocationsFile = data/HelsinkiMedium/D_homes.wkt
+Group9.nrofApplications = 1
+Group9.application1 = VehicleApp
+
+Group10.groupID = i
+Group10.speed = 7, 10
+Group10.waitTime = 10, 30
+Group10.nrofHosts = 12
+#Group10.movementModel = BusMovement
+Group10.routeFile = data/HelsinkiMedium/E_bus.wkt
+Group10.routeType = 2
+Group10.busControlSystemNr = 5
+Group10.nrofApplications = 1
+Group10.application1 = VehicleApp
+
+Group11.groupID = j
+Group11.waitTime = 0, 0 
+Group11.nrofHosts = 7
+#Group11.movementModel = WorkingDayMovement
+Group11.busControlSystemNr = 5
+Group11.speed = 0.8, 1.4
+Group11.ownCarProb = 0.7
+Group11.shoppingControlSystemNr = 5
+Group11.meetingSpotsFile = data/HelsinkiMedium/E_meetingspots.wkt
+Group11.officeLocationsFile = data/HelsinkiMedium/E_offices.wkt
+Group11.homeLocationsFile = data/HelsinkiMedium/E_homes.wkt
+Group11.nrofApplications = 1
+Group11.application1 = VehicleApp
+
+Group12.groupID = k
+Group12.speed = 7, 10
+Group12.waitTime = 10, 30
+Group12.nrofHosts = 12
+#Group12.movementModel = BusMovement
+Group12.routeFile = data/HelsinkiMedium/F_bus.wkt
+Group12.routeType = 2
+Group12.busControlSystemNr = 6
+Group12.nrofApplications = 1
+Group12.application1 = VehicleApp
+
+Group13.groupID = l
+Group13.waitTime = 0, 0 
+Group13.nrofHosts = 7
+#Group13.movementModel = WorkingDayMovement
+Group13.busControlSystemNr = 6
+Group13.speed = 0.8, 1.4
+Group13.ownCarProb = 0.7
+Group13.shoppingControlSystemNr = 6
+Group13.meetingSpotsFile = data/HelsinkiMedium/F_meetingspots.wkt
+Group13.officeLocationsFile = data/HelsinkiMedium/F_offices.wkt
+Group13.homeLocationsFile = data/HelsinkiMedium/F_homes.wkt
+Group13.nrofApplications = 1
+Group13.application1 = VehicleApp
+
+Group14.groupID = m
+Group14.speed = 7, 10
+Group14.waitTime = 10, 30
+Group14.nrofHosts = 12
+#Group14.movementModel = BusMovement
+Group14.routeFile = data/HelsinkiMedium/G_bus.wkt
+Group14.routeType = 2
+Group14.busControlSystemNr = 7
+Group14.nrofApplications = 1
+Group14.application1 = VehicleApp
+
+Group15.groupID = n
+Group15.waitTime = 0, 0 
+Group15.nrofHosts = 7
+#Group15.movementModel = WorkingDayMovement
+Group15.busControlSystemNr = 7
+Group15.speed = 0.8, 1.4
+Group15.ownCarProb = 0.7
+Group15.shoppingControlSystemNr = 7
+Group15.meetingSpotsFile = data/HelsinkiMedium/G_meetingspots.wkt
+Group15.officeLocationsFile = data/HelsinkiMedium/G_offices.wkt
+Group15.homeLocationsFile = data/HelsinkiMedium/G_homes.wkt
+Group15.nrofApplications = 1
+Group15.application1 = VehicleApp
+
+Group16.groupID = o
+Group16.speed = 7, 10
+Group16.waitTime = 10, 30
+Group16.nrofHosts = 16
+#Group16.movementModel = BusMovement
+Group16.routeFile = data/HelsinkiMedium/H_bus.wkt
+Group16.routeType = 2
+Group16.busControlSystemNr = 8
+Group16.nrofApplications = 1
+Group16.application1 = VehicleApp
+
+Group17.groupID = p
+#Group17.movementModel = ShortestPathMapBasedMovement
+Group17.waitTime = 100, 300
+Group17.speed = 7, 10
+Group17.nrofHosts = 120
+Group17.nrofApplications = 1
+Group17.application1 = VehicleApp
+
+## Message creation parameters 
+# How many event generators
+#Events.nrof = 1
+Events.nrof = 4
+# Class of the first event generator
+#Events1.class=MessageEventGenerator
+Events1.class = ContentMessageGenerator
+# (following settings are specific for the MessageEventGenerator class)
+# Creation interval in seconds (one new message every 25 to 35 seconds)
+Events1.interval = 25,35
+# Message sizes (500kB - 1MB)
+Events1.size = 500k,1M
+# range of message source/destination addresses
+Events1.tohosts = 30,300
+Events1.hosts = 0,30
+# Message ID prefix
+Events1.prefix = C
+
+Events2.class = EachToOneMessageGenerator
+Events2.interval = 4025,4035
+Events2.size = 500k,1M
+#exclude RSU nodes
+Events2.tohosts = 30,300
+Events2.hosts = 0,300
+Events2.prefix = M
+
+Events3.class = PeriodicityEvent
+Events3.interval = 3600,3600
+Events3.size = 500k,1M
+#exclude RSU nodes
+Events3.tohosts = 30,300
+Events3.hosts = 0,300
+Events3.prefix = D
+
+Events3.class = AttackEvent
+Events3.interval = 3600,3600
+Events3.size = 500k,1M
+#exclude RSU nodes
+Events3.tohosts = 30,300
+Events3.hosts = 0,300
+Events3.prefix = G
+## Movement model settings
+# seed for movement models' pseudo random number generator (default = 0)
+#MovementModel.rngSeed = 1
+MovementModel.rngSeed = [2; 8372; 98092; 18293; 777]
+# World's size for Movement Models without implicit size (width, height; meters)
+#MovementModel.worldSize = 4500, 3400
+MovementModel.worldSize = 10000, 7500
+# How long time to move hosts in the world before real simulation
+MovementModel.warmup = 1000
+
+## Map based movement -movement model specific settings
+#MapBasedMovement.nrofMapFiles = 4
+MapBasedMovement.nrofMapFiles = 1
+
+MapBasedMovement.mapFile1 = data/HelsinkiMedium/roads.wkt
+#MapBasedMovement.mapFile2 = data/main_roads.wkt
+#MapBasedMovement.mapFile3 = data/pedestrian_paths.wkt
+#MapBasedMovement.mapFile4 = data/shops.wkt
+
+## Reports - all report names have to be valid report classes
+
+# how many reports to load
+Report.nrofReports = 1
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+Report.reportDir = reports/
+# Report classes to load
+#Report.report1 = MessageStatsReport
+Report.report1 = CacheReport
+
+## Default settings for some routers settings
+ProphetRouter.secondsInTimeUnit = 30
+SprayAndWaitRouter.nrofCopies = 6
+SprayAndWaitRouter.binaryMode = true
+
+## Optimization settings -- these affect the speed of the simulation
+## see World class for details.
+Optimization.cellSizeMult = 5
+Optimization.randomizeUpdateOrder = true
+
+
+## GUI settings
+
+# GUI underlay image settings
+GUI.UnderlayImage.fileName = data/helsinki_underlay.png
+# Image offset in pixels (x, y)
+GUI.UnderlayImage.offset = 64, 20
+# Scaling factor for the image
+GUI.UnderlayImage.scale = 4.75
+# Image rotation (radians)
+GUI.UnderlayImage.rotate = -0.015
+
+# how many events to show in the log panel (default = 30)
+GUI.EventLogPanel.nrofEvents = 100
+# Regular Expression log filter (see Pattern-class from the Java API for RE-matching details)
+#GUI.EventLogPanel.REfilter = .*p[1-9]<->p[1-9]$

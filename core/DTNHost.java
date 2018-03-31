@@ -1,0 +1,860 @@
+/* 
+ * Copyright 2010 Aalto University, ComNet
+ * Released under GPLv3. See LICENSE.txt for details. 
+ */
+package core;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+
+import movement.MovementModel;
+import movement.Path;
+import routing.MessageRouter;
+import routing.util.RoutingInfo;
+
+/**
+ * A DTN capable host.
+ */
+public class DTNHost implements Comparable<DTNHost> {
+	private static int nextAddress = 0;
+	private int address;
+
+	private Coord location; 	// where is the host
+	private Coord destination;	// where is it going
+
+	private MessageRouter router;
+	private MovementModel movement;
+	private Path path;
+	private double speed;
+	private double nextTimeToMove;
+	private String name;
+	private List<MessageListener> msgListeners;
+	private List<MovementListener> movListeners;
+	private List<NetworkInterface> net;
+	private ModuleCommunicationBus comBus;
+
+	static {
+		DTNSim.registerForReset(DTNHost.class.getCanonicalName());
+		reset();
+	}
+	/**
+	 * Creates a new DTNHost.
+	 * @param msgLs Message listeners
+	 * @param movLs Movement listeners
+	 * @param groupId GroupID of this host
+	 * @param interf List of NetworkInterfaces for the class
+	 * @param comBus Module communication bus object
+	 * @param mmProto Prototype of the movement model of this host
+	 * @param mRouterProto Prototype of the message router of this host
+	 */
+	static int x=0;
+	static int y=1;
+	static HashSet<Integer> hs  = new HashSet<Integer>();
+	static int[] a = {5006,2994,
+		5012,2988,
+		5018,2982,
+		5006,2982,
+		5012,2976,
+		5018,2970,
+		5012,2964,
+		5006,2970,
+		5024,2976,
+		5030,2970,
+		5024,2964,
+		5030,2958,
+		5036,2952,
+		5018,2958,
+		5012,2952,
+		5006,2958,
+		5018,2946,
+		5024,2940,
+		5018,2934,
+		5012,2940,
+		5012,2928,
+		5024,2928,
+		5018,2922,
+		5012,2916,
+		5006,2922,
+		5006,2910,
+		5000,2916,
+		5006,2934,
+		5030,2922,
+		5036,2928,
+		5030,2934,
+		5042,2934,
+		5048,2940,
+		5042,2922,
+		5048,2928,
+		5054,2934,
+		5036,2940,
+		5030,2946,
+		5024,2952,
+		5060,2928,
+		5054,2922,
+		5060,2916,
+		5066,2910,
+		5072,2916,
+		5078,2922,
+		5072,2928,
+		5066,2922,
+		5054,2910,
+		5060,2904,
+		5042,2946,
+		5042,2958,
+		5048,2964,
+		5054,2958,
+		5042,2970,
+		5036,2964,
+		5048,2976,
+		5054,2970,
+		5054,2982,
+		5042,2982,
+		5036,2976,
+		5030,2982,
+		5000,2976,
+		4994,2970,
+		4988,2964,
+		4982,2970,
+		4988,2976,
+		4976,2964,
+		4976,2976,
+		4970,2970,
+		4964,2964,
+		4970,2958,
+		4982,2958,
+		4958,2970,
+		4976,2952,
+		4964,2952,
+		4958,2958,
+		4970,2946,
+		4976,2940,
+		4982,2934,
+		4988,2928,
+		4994,2922,
+		4988,2916,
+		4982,2922,
+		4994,2934,
+		4994,2910,
+		4982,2910,
+		4976,2916,
+		5000,2904,
+		5006,2898,
+		5012,2892,
+		5018,2898,
+		5024,2892,
+		5030,2886,
+		5012,2904,
+		5000,2928,
+		5018,2910,
+		4988,2940,
+		5000,2940,
+		5006,2946,
+		5024,2904,
+		5030,2898,
+		5036,2892,
+		5042,2898,
+		5006,2886,
+		5000,2880,
+		5012,2880,
+		5006,2874,
+		5018,2874,
+		5024,2880,
+		5042,2886,
+		5048,2880,
+		5042,2874,
+		5054,2886,
+		5048,2892,
+		5060,2880,
+		5066,2874,
+		5072,2880,
+		5060,2892,
+		5066,2886,
+		5072,2892,
+		5078,2886,
+		5084,2880,
+		5090,2874,
+		5084,2868,
+		5090,2862,
+		5096,2856,
+		5090,2850,
+		5096,2844,
+		5102,2850,
+		5084,2844,
+		5078,2850,
+		5072,2844,
+		5078,2838,
+		5072,2856,
+		5078,2862,
+		5072,2868,
+		5060,2868,
+		5054,2874,
+		5054,2862,
+		5048,2856,
+		5042,2862,
+		5036,2856,
+		5030,2850,
+		5024,2856,
+		5018,2850,
+		5036,2844,
+		5042,2850,
+		5030,2862,
+		5018,2862,
+		5048,2844,
+		5042,2838,
+		5024,2868,
+		5018,2886,
+		5000,2868,
+		4994,2862,
+		4988,2856,
+		4994,2850,
+		4982,2862,
+		4976,2868,
+		4976,2856,
+		4988,2868,
+		4994,2874,
+		4988,2880,
+		5000,2856,
+		5006,2850,
+		5012,2856,
+		5024,2844,
+		5018,2838,
+		5012,2844,
+		5006,2838,
+		5036,2832,
+		5042,2826,
+		5030,2838,
+		5048,2832,
+		5054,2826,
+		5060,2820,
+		5066,2826,
+		5066,2814,
+		5060,2808,
+		5054,2814,
+		5072,2832,
+		5048,2808,
+		5042,2814,
+		5048,2820,
+		5036,2820,
+		5030,2814,
+		5036,2808,
+		5042,2802,
+		5066,2802,
+		5060,2796,
+		5066,2790,
+		5054,2790,
+		5048,2796,
+		5054,2802,
+		5072,2808,
+		5072,2820,
+		5048,2784,
+		5042,2778,
+		5042,2790,
+		5036,2796,
+		5030,2790,
+		5024,2796,
+		5036,2784,
+		5030,2802,
+		5030,2826,
+		5024,2832,
+		5024,2808,
+		5018,2814,
+		5018,2802,
+		5024,2784,
+		5030,2778,
+		5048,2772,
+		5042,2766,
+		5054,2778,
+		5054,2766,
+		5060,2832,
+		5078,2826,
+		5084,2820,
+		5054,2838,
+		5060,2844,
+		5066,2850,
+		5060,2856,
+		5054,2850,
+		5066,2838,
+		5096,2880,
+		5096,2868,
+		5102,2886,
+		5108,2880,
+		5102,2874,
+		5114,2874,
+		5120,2880,
+		5126,2874,
+		5120,2868,
+		5126,2862,
+		5132,2868,
+		5138,2874,
+		5144,2880,
+		5150,2886,
+		5144,2868,
+		5138,2862,
+		5138,2886,
+		5144,2892,
+		5150,2874,
+		5132,2880,
+		5132,2856,
+		5138,2850,
+		5144,2856,
+		5150,2850,
+		5156,2844,
+		5162,2838,
+		5168,2844,
+		5174,2850,
+		5180,2844,
+		5186,2850,
+		5192,2856,
+		5186,2862,
+		5180,2868,
+		5198,2850,
+		5192,2844,
+		5180,2856,
+		5162,2850,
+		5168,2856,
+		5186,2838,
+		5180,2832,
+		5186,2826,
+		5180,2820,
+		5174,2814,
+		5168,2808,
+		5174,2802,
+		5180,2808,
+		5186,2814,
+		5192,2808,
+		5186,2802,
+		5192,2796,
+		5198,2790,
+		5192,2784,
+		5186,2778,
+		5192,2772,
+		5198,2778,
+		5204,2772,
+		5210,2778,
+		5198,2766,
+		5204,2784,
+		5204,2796,
+		5198,2802,
+		5198,2814,
+		5204,2820,
+		5198,2826,
+		5210,2814,
+		5216,2808,
+		5222,2814,
+		5228,2820,
+		5228,2808,
+		5216,2820,
+		5204,2808,
+		5180,2796,
+		5186,2790,
+		5180,2784,
+		5168,2796,
+		5162,2790
+};
+	public DTNHost(List<MessageListener> msgLs,
+			List<MovementListener> movLs,
+			String groupId, List<NetworkInterface> interf,
+			ModuleCommunicationBus comBus, 
+			MovementModel mmProto, MessageRouter mRouterProto) {
+		this.comBus = comBus;
+		this.location = new Coord(a[x],a[y]);
+		x+=2;y+=2;
+//		hs.add(this.location.hashCode());
+//		Coord point = new Coord(x,y);
+//		do{
+//		Random rand=new Random(System.currentTimeMillis());
+//		Random rand2 = new Random(System.currentTimeMillis());
+//		int a=(int)(Math.random()*2+1);
+//		int aa=(int)(Math.pow(-1, a));
+//		int b=(int)(Math.random()*2+1);
+//		int bb=(int)(Math.pow(-1, b));
+//		x+=aa*rand.nextInt(8);
+//		y+=bb*rand2.nextInt(8);
+//		point.setLocation(x, y);
+//		}
+//		while(!(hs.add(point.hashCode())));
+//		hs.remove(point.hashCode());
+//		System.out.println(x+","+y+",");
+//		x+=rand.nextInt(14)-7;
+//		y+=rand2.nextInt(14)-7;
+		this.address = getNextAddress();
+		this.name = groupId+address;
+		this.net = new ArrayList<NetworkInterface>();
+
+		for (NetworkInterface i : interf) {
+			NetworkInterface ni = i.replicate();
+			ni.setHost(this);
+			net.add(ni);
+		}	
+
+		// TODO - think about the names of the interfaces and the nodes
+
+		this.msgListeners = msgLs;
+		this.movListeners = movLs;
+
+		// create instances by replicating the prototypes
+		this.movement = mmProto.replicate();
+		this.movement.setComBus(comBus);
+		this.movement.setHost(this);
+		setRouter(mRouterProto.replicate());
+
+//		this.location = movement.getInitialLocation();
+//
+//		this.nextTimeToMove = movement.nextPathAvailable();
+		this.path = null;
+
+		if (movLs != null) { // inform movement listeners about the location
+			for (MovementListener l : movLs) {
+				l.initialLocation(this, this.location);
+			}
+		}
+	}
+	
+	/**
+	 * Returns a new network interface address and increments the address for
+	 * subsequent calls.
+	 * @return The next address.
+	 */
+	private synchronized static int getNextAddress() {
+		return nextAddress++;	
+	}
+
+	/**
+	 * Reset the host and its interfaces
+	 */
+	public static void reset() {
+		nextAddress = 0;
+	}
+
+	/**
+	 * Returns true if this node is actively moving (false if not)
+	 * @return true if this node is actively moving (false if not)
+	 */
+	public boolean isMovementActive() {
+		return this.movement.isActive();
+	}
+	
+	/**
+	 * Returns true if this node's radio is active (false if not)
+	 * @return true if this node's radio is active (false if not)
+	 */
+	public boolean isRadioActive() {
+		/* TODO: make this work for multiple interfaces */
+		return this.getInterface(1).isActive();
+	}
+
+	/**
+	 * Set a router for this host
+	 * @param router The router to set
+	 */
+	private void setRouter(MessageRouter router) {
+		router.init(this, msgListeners);
+		this.router = router;
+	}
+
+	/**
+	 * Returns the router of this host
+	 * @return the router of this host
+	 */
+	public MessageRouter getRouter() {
+		return this.router;
+	}
+
+	/**
+	 * Returns the network-layer address of this host.
+	 */
+	public int getAddress() {
+		return this.address;
+	}
+	
+	/**
+	 * Returns this hosts's ModuleCommunicationBus
+	 * @return this hosts's ModuleCommunicationBus
+	 */
+	public ModuleCommunicationBus getComBus() {
+		return this.comBus;
+	}
+	
+    /**
+	 * Informs the router of this host about state change in a connection
+	 * object.
+	 * @param con  The connection object whose state changed
+	 */
+	public void connectionUp(Connection con) {
+		this.router.changedConnection(con);
+	}
+
+	public void connectionDown(Connection con) {
+		this.router.changedConnection(con);
+	}
+
+	/**
+	 * Returns a copy of the list of connections this host has with other hosts
+	 * @return a copy of the list of connections this host has with other hosts
+	 */
+	public List<Connection> getConnections() {
+		List<Connection> lc = new ArrayList<Connection>();
+
+		for (NetworkInterface i : net) {
+			lc.addAll(i.getConnections());
+		}
+
+		return lc;
+	}
+
+	/**
+	 * Returns the current location of this host. 
+	 * @return The location
+	 */
+	public Coord getLocation() {
+		return this.location;
+	}
+
+	/**
+	 * Returns the Path this node is currently traveling or null if no
+	 * path is in use at the moment.
+	 * @return The path this node is traveling
+	 */
+	public Path getPath() {
+		return this.path;
+	}
+
+	/**
+	 * Sets the Node's location overriding any location set by movement model
+	 * @param location The location to set
+	 */
+	public void setLocation(Coord location) {
+		this.location = location.clone();
+	}
+
+	/**
+	 * Sets the Node's name overriding the default name (groupId + netAddress)
+	 * @param name The name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Returns the messages in a collection.
+	 * @return Messages in a collection
+	 */
+	public Collection<Message> getMessageCollection() {
+		return this.router.getMessageCollection();
+	}
+
+	/**
+	 * Returns the number of messages this node is carrying.
+	 * @return How many messages the node is carrying currently.
+	 */
+	public int getNrofMessages() {
+		return this.router.getNrofMessages();
+	}
+
+	/**
+	 * Returns the buffer occupancy percentage. Occupancy is 0 for empty
+	 * buffer but can be over 100 if a created message is bigger than buffer 
+	 * space that could be freed.
+	 * @return Buffer occupancy percentage
+	 */
+	public double getBufferOccupancy() {
+		double bSize = router.getBufferSize();
+		double freeBuffer = router.getFreeBufferSize();
+		return 100*((bSize-freeBuffer)/bSize);
+	}
+
+	/**
+	 * Returns routing info of this host's router.
+	 * @return The routing info.
+	 */
+	public RoutingInfo getRoutingInfo() {
+		return this.router.getRoutingInfo();
+	}
+
+	/**
+	 * Returns the interface objects of the node
+	 */
+	public List<NetworkInterface> getInterfaces() {
+		return net;
+	}
+
+	/**
+	 * Find the network interface based on the index
+	 */
+	public NetworkInterface getInterface(int interfaceNo) {
+		NetworkInterface ni = null;
+		try {
+			ni = net.get(interfaceNo-1);
+		} catch (IndexOutOfBoundsException ex) {
+			throw new SimError("No such interface: "+interfaceNo + 
+					" at " + this);
+		}
+		return ni;
+	}
+
+	/**
+	 * Find the network interface based on the interfacetype
+	 */
+	protected NetworkInterface getInterface(String interfacetype) {
+		for (NetworkInterface ni : net) {
+			if (ni.getInterfaceType().equals(interfacetype)) {
+				return ni;
+			}
+		}
+		return null;	
+	}
+
+	/**
+	 * Force a connection event
+	 */
+	public void forceConnection(DTNHost anotherHost, String interfaceId, 
+			boolean up) {
+		NetworkInterface ni;
+		NetworkInterface no;
+
+		if (interfaceId != null) {
+			ni = getInterface(interfaceId);
+			no = anotherHost.getInterface(interfaceId);
+
+			assert (ni != null) : "Tried to use a nonexisting interfacetype "+interfaceId;
+			assert (no != null) : "Tried to use a nonexisting interfacetype "+interfaceId;
+		} else {
+			ni = getInterface(1);
+			no = anotherHost.getInterface(1);
+			
+			assert (ni.getInterfaceType().equals(no.getInterfaceType())) : 
+				"Interface types do not match.  Please specify interface type explicitly";
+		}
+		
+		if (up) {
+			ni.createConnection(no);
+		} else {
+			ni.destroyConnection(no);
+		}
+	}
+
+	/**
+	 * for tests only --- do not use!!!
+	 */
+	public void connect(DTNHost h) {
+		System.err.println(
+				"WARNING: using deprecated DTNHost.connect(DTNHost)" +
+		"\n Use DTNHost.forceConnection(DTNHost,null,true) instead");
+		forceConnection(h,null,true);
+	}
+
+	/**
+	 * Updates node's network layer and router.
+	 * @param simulateConnections Should network layer be updated too
+	 */
+	public void update(boolean simulateConnections) {
+		if (!isRadioActive()) {
+			// Make sure inactive nodes don't have connections
+			tearDownAllConnections();
+			return;
+		}
+		
+		if (simulateConnections) {
+			for (NetworkInterface i : net) {
+				i.update();
+			}
+		}
+		this.router.update();
+	}
+	
+	/** 
+	 * Tears down all connections for this host.
+	 */
+	private void tearDownAllConnections() {
+		for (NetworkInterface i : net) {
+			// Get all connections for the interface
+			List<Connection> conns = i.getConnections();
+			if (conns.size() == 0) continue;
+			
+			// Destroy all connections
+			List<NetworkInterface> removeList =
+				new ArrayList<NetworkInterface>(conns.size());
+			for (Connection con : conns) {
+				removeList.add(con.getOtherInterface(i));
+			}
+			for (NetworkInterface inf : removeList) {
+				i.destroyConnection(inf);
+			}
+		}
+	}
+
+	/**
+	 * Moves the node towards the next waypoint or waits if it is
+	 * not time to move yet
+	 * @param timeIncrement How long time the node moves
+	 */
+	public void move(double timeIncrement) {		
+		double possibleMovement;
+		double distance;
+		double dx, dy;
+
+		if (!isMovementActive() || SimClock.getTime() < this.nextTimeToMove) {
+			return; 
+		}
+		if (this.destination == null) {
+			if (!setNextWaypoint()) {
+				return;
+			}
+		}
+
+		possibleMovement = timeIncrement * speed;
+		distance = this.location.distance(this.destination);
+
+		while (possibleMovement >= distance) {
+			// node can move past its next destination
+			this.location.setLocation(this.destination); // snap to destination
+			possibleMovement -= distance;
+			if (!setNextWaypoint()) { // get a new waypoint
+				return; // no more waypoints left
+			}
+			distance = this.location.distance(this.destination);
+		}
+
+		// move towards the point for possibleMovement amount
+		dx = (possibleMovement/distance) * (this.destination.getX() -
+				this.location.getX());
+		dy = (possibleMovement/distance) * (this.destination.getY() -
+				this.location.getY());
+		this.location.translate(dx, dy);
+	}	
+
+	/**
+	 * Sets the next destination and speed to correspond the next waypoint
+	 * on the path.
+	 * @return True if there was a next waypoint to set, false if node still
+	 * should wait
+	 */
+	private boolean setNextWaypoint() {
+		if (path == null) {
+			path = movement.getPath();
+		}
+
+		if (path == null || !path.hasNext()) {
+			this.nextTimeToMove = movement.nextPathAvailable();
+			this.path = null;
+			return false;
+		}
+
+		this.destination = path.getNextWaypoint();
+		this.speed = path.getSpeed();
+
+		if (this.movListeners != null) {
+			for (MovementListener l : this.movListeners) {
+				l.newDestination(this, this.destination, this.speed);
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sends a message from this host to another host
+	 * @param id Identifier of the message
+	 * @param to Host the message should be sent to
+	 */
+	public void sendMessage(String id, DTNHost to) {
+		this.router.sendMessage(id, to);
+	}
+
+	/**
+	 * Start receiving a message from another host
+	 * @param m The message
+	 * @param from Who the message is from
+	 * @return The value returned by 
+	 * {@link MessageRouter#receiveMessage(Message, DTNHost)}
+	 */
+	public int receiveMessage(Message m, DTNHost from) {
+		int retVal = this.router.receiveMessage(m, from); 
+
+		if (retVal == MessageRouter.RCV_OK) {
+			m.addNodeOnPath(this);	// add this node on the messages path
+		}
+
+		return retVal;	
+	}
+
+	/**
+	 * Requests for deliverable message from this host to be sent trough a
+	 * connection.
+	 * @param con The connection to send the messages trough
+	 * @return True if this host started a transfer, false if not
+	 */
+	public boolean requestDeliverableMessages(Connection con) {
+		return this.router.requestDeliverableMessages(con);
+	}
+
+	/**
+	 * Informs the host that a message was successfully transferred.
+	 * @param id Identifier of the message
+	 * @param from From who the message was from
+	 */
+	public void messageTransferred(String id, DTNHost from) {
+		this.router.messageTransferred(id, from);
+	}
+
+	/**
+	 * Informs the host that a message transfer was aborted.
+	 * @param id Identifier of the message
+	 * @param from From who the message was from
+	 * @param bytesRemaining Nrof bytes that were left before the transfer
+	 * would have been ready; or -1 if the number of bytes is not known
+	 */
+	public void messageAborted(String id, DTNHost from, int bytesRemaining) {
+		this.router.messageAborted(id, from, bytesRemaining);
+	}
+
+	/**
+	 * Creates a new message to this host's router
+	 * @param m The message to create
+	 */
+	public void createNewMessage(Message m) {
+		this.router.createNewMessage(m);
+	}
+
+	/**
+	 * Deletes a message from this host
+	 * @param id Identifier of the message
+	 * @param drop True if the message is deleted because of "dropping"
+	 * (e.g. buffer is full) or false if it was deleted for some other reason
+	 * (e.g. the message got delivered to final destination). This effects the
+	 * way the removing is reported to the message listeners.
+	 */
+	public void deleteMessage(String id, boolean drop) {
+		this.router.deleteMessage(id, drop);
+	}
+
+	/**
+	 * Returns a string presentation of the host.
+	 * @return Host's name
+	 */
+	public String toString() {
+		return name;
+	}
+
+	/**
+	 * Checks if a host is the same as this host by comparing the object
+	 * reference
+	 * @param otherHost The other host
+	 * @return True if the hosts objects are the same object
+	 */
+	public boolean equals(DTNHost otherHost) {
+		return this==otherHost;
+	}
+
+	/**
+	 * Compares two DTNHosts by their addresses.
+	 * @see Comparable#compareTo(Object)
+	 */
+	public int compareTo(DTNHost h) {
+		return this.getAddress() - h.getAddress();
+	}
+
+}
